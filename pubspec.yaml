@@ -1,0 +1,20 @@
+name: material_palette
+description: Generate a material palette from an image. 
+author: Tom Newton <tom.newton@gmail.com>
+homepage: https://github.com/tomnewton/material-palette
+version: 0.0.6
+
+
+dependencies:
+  image: "^1.1.33"
+  collection: "^1.14.6"
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+environment:
+  sdk: ">=2.0.0-dev.28.0 <3.0.0"
+  flutter: ">=0.1.4 <2.0.0"
