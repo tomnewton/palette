@@ -4,11 +4,11 @@ import 'dart:ui';
 
 class ColorUtils {
 
-  static final int WHITE = 0xFFFFFF;
-  static final int BLACK = 0x000000;
+  static const int WHITE = 0xFFFFFF;
+  static const int BLACK = 0x000000;
 
-  static final int MIN_ALPHA_SEARCH_MAX_ITERATIONS = 10;
-  static final int MIN_ALPHA_SEARCH_PRECISION = 10;
+  static const int MIN_ALPHA_SEARCH_MAX_ITERATIONS = 10;
+  static const int MIN_ALPHA_SEARCH_PRECISION = 10;
 
   static int calculateMinimumAlpha(int foreground, int background, double minContrastRatio) {
     if (Color(background).alpha != 255) {
@@ -100,12 +100,12 @@ class ColorUtils {
       return new Color.fromARGB(a, r, g, b).value; 
   }
 
-  static void ColorToHSL(int color, List<double> hsl) {
+  static void colorToHSL(int color, List<double> hsl) {
     Color c = Color(color);
-    return ColorUtils.RGBToHSL(c.red, c.green, c.blue, hsl);
+    return ColorUtils.rgbToHSL(c.red, c.green, c.blue, hsl);
   }
   
-  static int ColorWithRGB(int r, int g, int b) {
+  static int colorWithRGB(int r, int g, int b) {
     return new Color.fromARGB(0xFF, r, g, b).value;
   }
   /*
@@ -121,7 +121,7 @@ class ColorUtils {
   * @param b   blue component value [0..255]
   * @param hsl 3 element array which holds the resulting HSL components.
   */
-  static void RGBToHSL(int r, int g, int b, List<double> hsl) {
+  static void rgbToHSL(int r, int g, int b, List<double> hsl) {
       final double rf = r / 255.0;
       final double gf = g / 255.0;
       final double bf = b / 255.0;
@@ -173,7 +173,7 @@ class ColorUtils {
       return (((0xFF * fgC * fgA) + (bgC * bgA * (0xFF - fgA))) / (a * 0xFF)).round();
   }
 
-  static int HSLToColor(List<double> hsl) {
+  static int hslToColor(List<double> hsl) {
         final double h = hsl[0];
         final double s = hsl[1];
         final double l = hsl[2];

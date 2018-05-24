@@ -1,6 +1,6 @@
 import "package:test/test.dart";
-import "package:material_palette/src/colorutils.dart";
-import "package:material_palette/src/v7/bitmap.dart";
+import "package:palette/src/color_utils.dart";
+import "package:palette/src/bitmap.dart";
 import "dart:ui";
 
 
@@ -8,8 +8,8 @@ void main() {
   test("RGB - HSL", () {
     var rgb = 0xFF884422;
     var hsl = new List<double>(3);
-    ColorUtils.RGBToHSL(ColorUtils.red(rgb), ColorUtils.green(rgb), ColorUtils.blue(rgb), hsl);
-    var want = ColorUtils.HSLToColor(hsl);
+    ColorUtils.rgbToHSL(ColorUtils.red(rgb), ColorUtils.green(rgb), ColorUtils.blue(rgb), hsl);
+    var want = ColorUtils.hslToColor(hsl);
     expect(want, equals(rgb));
   });
 

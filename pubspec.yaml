@@ -1,13 +1,11 @@
-name: material_palette
-description: Generate a material palette from an image. 
+name: palette
+description: Generate a palette from an image. 
 author: Tom Newton <tom.newton@gmail.com>
-homepage: https://github.com/tomnewton/material-palette
-version: 0.0.6
+homepage: https://github.com/tomnewton/palette
+version: 0.0.1
 
 
 dependencies:
-  image: "^1.1.33"
-  collection: "^1.14.6"
   flutter:
     sdk: flutter
 

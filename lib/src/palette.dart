@@ -3,17 +3,17 @@ import 'dart:async';
 import 'dart:math' as Math;
 import 'rect.dart' as RECT;
 import 'dart:typed_data';
-import '../colorutils.dart';
+import 'color_utils.dart';
 import 'bitmap.dart';
 import 'target.dart';
 import 'color_cut_quantizer.dart';
 import 'constants.dart';
 
 class Palette {
-  static final int DEFAULT_RESIZE_BITMAP_AREA = 112 * 112;
-  static final int DEFAULT_CALCULATE_NUMBER_COLORS = 16;
-  static final double MIN_CONTRAST_TITLE_TEXT = 3.0;
-  static final double MIN_CONTRAST_BODY_TEXT = 4.5;
+  static const int DEFAULT_RESIZE_BITMAP_AREA = 112 * 112;
+  static const int DEFAULT_CALCULATE_NUMBER_COLORS = 16;
+  static const double MIN_CONTRAST_TITLE_TEXT = 3.0;
+  static const double MIN_CONTRAST_BODY_TEXT = 4.5;
 
   static Builder from(Bitmap bmp) {
     return new Builder(bmp);
@@ -36,7 +36,6 @@ class Palette {
       colors.add(new Color(swatch.rgb));
     }
 
-    List<int> pixels = new Uint32List((columnWidth*colors.length)*height);
     var recorder = new PictureRecorder();
     var canvas = new Canvas(recorder);
 
@@ -45,10 +44,8 @@ class Palette {
       for(var i = 0; i < colors.length; i++ ){
         var color = colors[i];
         for ( var j = 0; j < columnWidth; j++ ){
-          var index = (h*(rowWidth)) + (i*columnWidth) + j;
           var y = h.toDouble();
           var x = (i*columnWidth) + j.toDouble();
-          //pixels[index] = color;
           canvas.drawRawPoints(PointMode.points, new Float32List.fromList([x, y]), new Paint()..color = color);
         }
       }
@@ -277,12 +274,12 @@ class Palette {
     return maxSwatch;
   }
 
-  static List<double> _copyHslValues(Swatch color) {
+  /*static List<double> _copyHslValues(Swatch color) {
     final List<double> newHsl = new List<double>(3);
     //System.arraycopy(color.hsl, 0, newHsl, 0, 3);
     List.copyRange(newHsl, 0, color.hsl);
     return newHsl;
-  }
+  }*/
 }
 
 
@@ -298,7 +295,7 @@ class Swatch {
   int _bodyTextColor;
 
 
-  List<double> _hsl = null;
+  List<double> _hsl;
 
   Swatch(this._rgb, this._population) :
     _red = _rgb.red,
@@ -309,7 +306,7 @@ class Swatch {
   _rgb = new Color.fromARGB(255, _red, _green, _blue);
 
   factory Swatch.fromHSL(List<double> hsl, int population) {
-    Color color = new Color( ColorUtils.HSLToColor(hsl) );
+    Color color = new Color( ColorUtils.hslToColor(hsl) );
     return new Swatch(color, population);
   }
 
@@ -321,7 +318,7 @@ class Swatch {
     }
    if ( _rgb != null ) {
       _hsl = new List<double>.filled(3, 0.0);
-      ColorUtils.ColorToHSL(_rgb.value, _hsl);
+      ColorUtils.colorToHSL(_rgb.value, _hsl);
       return _hsl;
     }
     return new List<double>.filled(3, 0.0);
@@ -398,7 +395,7 @@ class Swatch {
       identical(this, other) ||
           other is Swatch &&
               _population == other.population &&
-              _rgb == other.rgb;
+              _rgb.value == other.rgb;
 
 }
 
@@ -484,7 +481,6 @@ class Builder {
 
   Future<List<int>> getPixelsFromBitmap(Bitmap bitmap) async {
     final int bitmapWidth = bitmap.width;
-    final int bitmapHeight = bitmap.height;
     final List<int> pixels = await Bitmap.getCopyAllPixels(bitmap);
     
     if ( _region == null ){
@@ -539,8 +535,8 @@ abstract class IFilter {
 }
 
 class Filter implements IFilter {
-  static double _BLACK_MAX_LIGHTNESS = 0.05;
-  static double _WHITE_MIN_LIGHTNESS = 0.95;
+  static const double _BLACK_MAX_LIGHTNESS = 0.05;
+  static const double _WHITE_MIN_LIGHTNESS = 0.95;
 
   Filter();
 

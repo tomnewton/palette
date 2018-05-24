@@ -1,8 +1,8 @@
-import './palette.dart';
+import 'palette.dart';
 import 'dart:ui';
 import 'dart:math' as Math;
 import 'package:collection/collection.dart';
-import '../colorutils.dart';
+import 'color_utils.dart';
 import 'constants.dart';
 
 class ColorCutQuantizer {
@@ -11,8 +11,8 @@ class ColorCutQuantizer {
   static const int COMPONENT_GREEN = -2;
   static const int COMPONENT_BLUE = -1;
 
-  static final int __QUANTIZE_WORD_WIDTH = 5;
-  static final int __QUANTIZE_WORD_MASK = ( 1 << __QUANTIZE_WORD_WIDTH ) - 1;
+  static const int __QUANTIZE_WORD_WIDTH = 5;
+  static const int __QUANTIZE_WORD_MASK = ( 1 << __QUANTIZE_WORD_WIDTH ) - 1;
 
   List<int> _colors;
   List<Swatch> _quantizedColors;
@@ -27,7 +27,7 @@ class ColorCutQuantizer {
     for ( var i = 0; i < pixels.length; i++ ){
       final int pixel = pixels[i];
       final int quantizedColor = quantizeFromRgb888(pixel);
-      final int backAgainColor = approximateToRgb888(quantizedColor);
+      //final int backAgainColor = approximateToRgb888(quantizedColor);
       pixels[i] = quantizedColor;
       hist[quantizedColor] += 1;
     }
@@ -146,7 +146,7 @@ static int approximateToRgb888(int color) {
 
   bool _shouldIgnoreColorInt(int color) {
     final int rgb = approximateToRgb888(color);
-    ColorUtils.ColorToHSL(color, _temporaryHsl);
+    ColorUtils.colorToHSL(color, _temporaryHsl);
     var shouldIgnore = _shouldIgnoreColorRGBHSL(rgb, _temporaryHsl);
     return shouldIgnore;
   }

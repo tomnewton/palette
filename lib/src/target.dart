@@ -1,50 +1,50 @@
 class Target {
-  static final double TARGET_DARK_LUMA = 0.26;
-  static final double MAX_DARK_LUMA = 0.45;
-  static final double MIN_LIGHT_LUMA = 0.55;
-  static final double TARGET_LIGHT_LUMA = 0.74;
-  static final double MIN_NORMAL_LUMA = 0.3;
-  static final double TARGET_NORMAL_LUMA = 0.5;
-  static final double MAX_NORMAL_LUMA = 0.7;
-  static final double TARGET_MUTED_SATURATION = 0.3;
-  static final double MAX_MUTED_SATURATION = 0.4;
-  static final double TARGET_VIBRANT_SATURATION = 1.0;
-  static final double MIN_VIBRANT_SATURATION = 0.35;
-  static final double WEIGHT_SATURATION = 0.24;
-  static final double WEIGHT_LUMA = 0.52;
-  static final double WEIGHT_POPULATION = 0.24;
-  static final int INDEX_MIN = 0;
-  static final int INDEX_TARGET = 1;
-  static final int INDEX_MAX = 2;
-  static final int INDEX_WEIGHT_SAT = 0;
-  static final int INDEX_WEIGHT_LUMA = 1;
-  static final int INDEX_WEIGHT_POP = 2;
+  static const double TARGET_DARK_LUMA = 0.26;
+  static const double MAX_DARK_LUMA = 0.45;
+  static const double MIN_LIGHT_LUMA = 0.55;
+  static const double TARGET_LIGHT_LUMA = 0.74;
+  static const double MIN_NORMAL_LUMA = 0.3;
+  static const double TARGET_NORMAL_LUMA = 0.5;
+  static const double MAX_NORMAL_LUMA = 0.7;
+  static const double TARGET_MUTED_SATURATION = 0.3;
+  static const double MAX_MUTED_SATURATION = 0.4;
+  static const double TARGET_VIBRANT_SATURATION = 1.0;
+  static const double MIN_VIBRANT_SATURATION = 0.35;
+  static const double WEIGHT_SATURATION = 0.24;
+  static const double WEIGHT_LUMA = 0.52;
+  static const double WEIGHT_POPULATION = 0.24;
+  static const int INDEX_MIN = 0;
+  static const int INDEX_TARGET = 1;
+  static const int INDEX_MAX = 2;
+  static const int INDEX_WEIGHT_SAT = 0;
+  static const int INDEX_WEIGHT_LUMA = 1;
+  static const int INDEX_WEIGHT_POP = 2;
 
 
   /*
    * A target which has the characteristics of a vibrant color which is light in luminance.
   */
-  static Target LIGHT_VIBRANT = new Target.lightVibrant();
+  static final Target LIGHT_VIBRANT = new Target.lightVibrant();
   /*
    * A target which has the characteristics of a vibrant color which is neither light or dark.
    */
-  static Target VIBRANT = new Target.vibrant();
+  static final Target VIBRANT = new Target.vibrant();
   /*
    * A target which has the characteristics of a vibrant color which is dark in luminance.
    */
-  static Target DARK_VIBRANT = new Target.darkVibrant();
+  static final Target DARK_VIBRANT = new Target.darkVibrant();
   /*
    * A target which has the characteristics of a muted color which is light in luminance.
    */
-  static Target LIGHT_MUTED = new Target.lightMuted();
+  static final Target LIGHT_MUTED = new Target.lightMuted();
   /*
    * A target which has the characteristics of a muted color which is neither light or dark.
    */
-  static Target MUTED = new Target.muted();
+  static final Target MUTED = new Target.muted();
   /*
    * A target which has the characteristics of a muted color which is dark in luminance.
    */
-  static Target DARK_MUTED = new Target.darkMuted();
+  static final Target DARK_MUTED = new Target.darkMuted();
 
   final List<double> mSaturationTargets = new List<double>(3);
   final List<double> mLightnessTargets = new List<double>(3);

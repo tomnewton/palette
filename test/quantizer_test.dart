@@ -1,11 +1,10 @@
 import "package:test/test.dart";
-import "package:material_palette/src/v7/palette.dart";
+import "package:palette/src/palette.dart";
 import "dart:io" as Io;
 import "dart:ui";
 import "dart:typed_data";
-import "package:material_palette/src/v7/bitmap.dart";
-import "package:flutter/painting.dart";
-//import "package:material_palette/src/v7/color_cut_quantizer.dart";
+import "package:palette/src/bitmap.dart";
+//import "package:flutter/painting.dart";
 
 void main() {
   test("Test palette generation", () async {
