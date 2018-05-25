@@ -24,7 +24,6 @@ class Builder {
 
   Builder(this._bitmap) {
     if (_bitmap == null) {
-      //|| _bitmap.isRecycled
       throw new ArgumentError("Bitmap is not valid.");
     }
 
