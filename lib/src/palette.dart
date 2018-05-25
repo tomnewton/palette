@@ -143,8 +143,9 @@ class Palette {
     
     // sort the swatches by population
     this._swatches.sort((Swatch a, Swatch b) {
-      return a.population - b.population;
+      return b.population - a.population;
     });
+    assert(_dominantSwatch == _swatches[0]);
   }
 
   void generate() {
