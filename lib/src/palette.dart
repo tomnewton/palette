@@ -130,6 +130,7 @@ class Palette {
   static const double MIN_CONTRAST_TITLE_TEXT = 3.0;
   static const double MIN_CONTRAST_BODY_TEXT = 4.5;
 
+  // A population sorted list of colors in the palette. 
   final List<Swatch> _swatches;
 
   final List<Target> _targets;
@@ -138,7 +139,13 @@ class Palette {
   final Swatch _dominantSwatch;
 
   Palette(this._swatches, this._targets)
-      : _dominantSwatch = findDominantSwatch(_swatches);
+      : _dominantSwatch = findDominantSwatch(_swatches) {
+    
+    // sort the swatches by population
+    this._swatches.sort((Swatch a, Swatch b) {
+      return a.population - b.population;
+    });
+  }
 
   void generate() {
     // Need to make sure that scored targets are generated first. This is
@@ -153,7 +160,7 @@ class Palette {
     _usedColors.clear();
   }
 
-  int getColorForTarget(final Target target, final int defaultColor) {
+  Color getColorForTarget(final Target target, final Color defaultColor) {
     Swatch swatch = _selectedSwatches[target];
     return swatch != null ? swatch.rgb : defaultColor;
   }
@@ -161,7 +168,7 @@ class Palette {
   /*
    * Returns all of the swatches which make up the palette.
    */
-  int getDarkMutedColor(final int defaultColor) {
+  Color getDarkMutedColor(final Color defaultColor) {
     return getColorForTarget(Target.DARK_MUTED, defaultColor);
   }
 
@@ -177,7 +184,7 @@ class Palette {
    *
    * @see Target#VIBRANT
    */
-  int getDarkVibrantColor(final int defaultColor) {
+  Color getDarkVibrantColor(final Color defaultColor) {
     return getColorForTarget(Target.DARK_VIBRANT, defaultColor);
   }
 
@@ -204,7 +211,7 @@ class Palette {
    *
    * @see Target#MUTED
    */
-  int getLightMutedColor(final int defaultColor) {
+  Color getLightMutedColor(final Color defaultColor) {
     return getColorForTarget(Target.LIGHT_MUTED, defaultColor);
   }
 
@@ -222,7 +229,7 @@ class Palette {
    *
    * @see Target#DARK_MUTED
    */
-  int getLightVibrantColor(final int defaultColor) {
+  Color getLightVibrantColor(final Color defaultColor) {
     return getColorForTarget(Target.LIGHT_VIBRANT, defaultColor);
   }
 
@@ -242,7 +249,7 @@ class Palette {
    * @param defaultColor value to return if the swatch isn't available
    * @see #getLightVibrantSwatch()
    */
-  int getMutedColor(final int defaultColor) {
+  Color getMutedColor(final Color defaultColor) {
     return getColorForTarget(Target.MUTED, defaultColor);
   }
 
@@ -284,7 +291,7 @@ class Palette {
    * @param defaultColor value to return if the swatch isn't available
    * @see #getDarkMutedSwatch()
    */
-  int getVibrantColor(final int defaultColor) {
+  Color getVibrantColor(final Color defaultColor) {
     return getColorForTarget(Target.VIBRANT, defaultColor);
   }
 

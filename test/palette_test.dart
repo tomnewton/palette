@@ -40,9 +40,12 @@ main() {
 
     expect(palette.getSwatches().length, equals(3));
 
-    var blueSwatch = palette.getSwatches()[0];
+    // RED SHOULD BE IN FIRST POSITION b/c _swatches
+    // are sorted by population to allow easy retrieval by 
+    // population.
+    var redSwatch = palette.getSwatches()[0];
     var greenSwatch = palette.getSwatches()[1];
-    var redSwatch = palette.getSwatches()[2];
+    var blueSwatch = palette.getSwatches()[2];
 
     var blueColor = blueSwatch.rgb;
     expect(

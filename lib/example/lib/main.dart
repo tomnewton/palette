@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var dominantSwatch = this.palette.getDominantSwatch();
-
+    var vibrantSwatch = this.palette.getSwatches()[1];
     return new MaterialApp(
       title: 'Flutter Demo',
       theme: new ThemeData(
@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
         // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: new MaterialColor(dominantSwatch.rgb.value, dominantSwatch.toMaterialSwatch()),
+        accentColor: vibrantSwatch[50],
       ),
       home: new MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -126,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: new FloatingActionButton(
+        backgroundColor: Theme.of(context).accentColor,
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: new Icon(Icons.add),
