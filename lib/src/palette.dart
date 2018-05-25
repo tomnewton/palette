@@ -460,7 +460,7 @@ class Swatch {
     var tempHSL = new List<double>.filled(3, 0.0);
     List.copyRange(tempHSL, 0, this.hsl);
     
-    tempHSL[3] = i/100;
+    tempHSL[2] = i/100;
 
     return new Color(ColorUtils.hslToColor(tempHSL));
   }
