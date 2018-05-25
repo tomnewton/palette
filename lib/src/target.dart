@@ -49,7 +49,7 @@ class Target {
   final List<double> mSaturationTargets = new List<double>(3);
   final List<double> mLightnessTargets = new List<double>(3);
   final List<double> mWeights = new List<double>(3);
-  bool mIsExclusive = true; // default to true
+  bool mIsExclusive = false; // default to true
 
   Target(){
     _setTargetDefaultValues(mSaturationTargets);

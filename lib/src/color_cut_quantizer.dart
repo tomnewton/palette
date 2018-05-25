@@ -1,9 +1,11 @@
-import 'palette.dart';
-import 'dart:ui';
 import 'dart:math' as Math;
+import 'dart:ui';
+
 import 'package:collection/collection.dart';
+
 import 'color_utils.dart';
 import 'constants.dart';
+import 'palette.dart';
 
 class ColorCutQuantizer {
 
@@ -27,7 +29,6 @@ class ColorCutQuantizer {
     for ( var i = 0; i < pixels.length; i++ ){
       final int pixel = pixels[i];
       final int quantizedColor = quantizeFromRgb888(pixel);
-      //final int backAgainColor = approximateToRgb888(quantizedColor);
       pixels[i] = quantizedColor;
       hist[quantizedColor] += 1;
     }
@@ -71,6 +72,18 @@ class ColorCutQuantizer {
   List<Swatch> get quantizedColors => _quantizedColors;
 
 
+  List<Swatch> _generateAverageColors(PriorityQueue<VBox> vboxes) {
+    List<Swatch> colors = new List<Swatch>();
+    for ( VBox vbox in vboxes.toList() ){
+      Swatch swatch = vbox.getAverageColor(_colors, _histogram);
+      if (!_shouldIgnoreSwatch(swatch)) {
+        // As we're averaging a color box, we can still get colors which we do not want...
+        colors.add(swatch);
+      }
+    }  
+    return colors;
+  }
+
   List<Swatch> _quantizePixels(int maxColors) {
 
     // Create a priority queue whcih is sorted by volume descending. This means we always
@@ -91,6 +104,32 @@ class ColorCutQuantizer {
     return _generateAverageColors(queue);
   }
 
+
+  bool _shouldIgnoreColorInt(int color) {
+    final int rgb = approximateToRgb888(color);
+    ColorUtils.colorToHSL(color, _temporaryHsl);
+    var shouldIgnore = _shouldIgnoreColorRGBHSL(rgb, _temporaryHsl);
+    return shouldIgnore;
+  }
+
+  /*
+   *  We are reducing the color depth in the image. 
+   */
+  bool _shouldIgnoreColorRGBHSL(int rgb, List<double> hsl) {
+    if (_filters != null && _filters.length > 0) {
+      for (int i = 0, count = _filters.length; i < count; i++) {
+        if (!_filters[i].isAllowed(rgb, hsl)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+bool _shouldIgnoreSwatch(Swatch s) {
+    return _shouldIgnoreColorRGBHSL(s.rgb, s.hsl);
+  }
+
   void _splitBoxes(PriorityQueue queue, int maxSize) {
     while(queue.length < maxSize) {
       final VBox vbox = queue.removeFirst();
@@ -107,63 +146,16 @@ class ColorCutQuantizer {
     }
   }
 
-
-  List<Swatch> _generateAverageColors(PriorityQueue<VBox> vboxes) {
-    List<Swatch> colors = new List<Swatch>();
-    for ( VBox vbox in vboxes.toList() ){
-      Swatch swatch = vbox.getAverageColor(_colors, _histogram);
-      if (!_shouldIgnoreSwatch(swatch)) {
-        // As we're averaging a color box, we can still get colors which we do not want...
-        colors.add(swatch);
-      }
-    }  
-    return colors;
-  }
-
-  /*
-   *  We are reducing the color depth in the image. 
-   */
-  static int quantizeFromRgb888(int color) {
-    Color c = new Color(color);
-    int r = _modifyWordWidth(c.red, 8, __QUANTIZE_WORD_WIDTH);
-    int g = _modifyWordWidth(c.green, 8, __QUANTIZE_WORD_WIDTH);
-    int b = _modifyWordWidth(c.blue, 8, __QUANTIZE_WORD_WIDTH);
-    return r << (__QUANTIZE_WORD_WIDTH + __QUANTIZE_WORD_WIDTH) | g << __QUANTIZE_WORD_WIDTH | b;
-  }
-
-static int approximateToRgb888(int color) {
+  static int approximateToRgb888(int color) {
     return _approximateToRgb888(quantizedRed(color), quantizedGreen(color), quantizedBlue(color));
   }
 
-  static int _approximateToRgb888(int r, int g, int b) {
-    return new Color.fromARGB(
-      255, 
-      _modifyWordWidth(r, __QUANTIZE_WORD_WIDTH, 8),
-      _modifyWordWidth(g, __QUANTIZE_WORD_WIDTH, 8),
-      _modifyWordWidth(b, __QUANTIZE_WORD_WIDTH, 8)
-      ).value;
+  static int quantizedBlue(int color) {
+    return color & __QUANTIZE_WORD_MASK;
   }
 
-  bool _shouldIgnoreColorInt(int color) {
-    final int rgb = approximateToRgb888(color);
-    ColorUtils.colorToHSL(color, _temporaryHsl);
-    var shouldIgnore = _shouldIgnoreColorRGBHSL(rgb, _temporaryHsl);
-    return shouldIgnore;
-  }
-
-  bool _shouldIgnoreColorRGBHSL(int rgb, List<double> hsl) {
-    if (_filters != null && _filters.length > 0) {
-      for (int i = 0, count = _filters.length; i < count; i++) {
-        if (!_filters[i].isAllowed(rgb, hsl)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  bool _shouldIgnoreSwatch(Swatch s) {
-    return _shouldIgnoreColorRGBHSL(s.rgb, s.hsl);
+  static int quantizedGreen(int color) {
+    return (color >> __QUANTIZE_WORD_WIDTH) & __QUANTIZE_WORD_MASK;
   }
 
   /*
@@ -175,14 +167,23 @@ static int approximateToRgb888(int color) {
   /*
    * @return green component of a quantized color
    */
-  static int quantizedGreen(int color) {
-    return (color >> __QUANTIZE_WORD_WIDTH) & __QUANTIZE_WORD_MASK;
+  static int quantizeFromRgb888(int color) {
+    Color c = new Color(color);
+    int r = _modifyWordWidth(c.red, 8, __QUANTIZE_WORD_WIDTH);
+    int g = _modifyWordWidth(c.green, 8, __QUANTIZE_WORD_WIDTH);
+    int b = _modifyWordWidth(c.blue, 8, __QUANTIZE_WORD_WIDTH);
+    return r << (__QUANTIZE_WORD_WIDTH + __QUANTIZE_WORD_WIDTH) | g << __QUANTIZE_WORD_WIDTH | b;
   }
   /*
    * @return blue component of a quantized color
    */
-  static int quantizedBlue(int color) {
-    return color & __QUANTIZE_WORD_MASK;
+  static int _approximateToRgb888(int r, int g, int b) {
+    return new Color.fromARGB(
+      255, 
+      _modifyWordWidth(r, __QUANTIZE_WORD_WIDTH, 8),
+      _modifyWordWidth(g, __QUANTIZE_WORD_WIDTH, 8),
+      _modifyWordWidth(b, __QUANTIZE_WORD_WIDTH, 8)
+      ).value;
   }
 
 
@@ -199,20 +200,7 @@ static int approximateToRgb888(int color) {
 
     return newValue & ((1 << targetWidth) - 1);
   }
-
-  /*static void modifySignificantOctet(final List<int> a, final int dimension, final int lower, final int upper) {
-    switch (dimension) {
-      case COMPONENT_RED:
-        // We are already in RGB
-        break;
-      case COMPONENT_GREEN:
-        // need to go from RGB to 
-    }
-  }*/
 }
-
-
-
 
 class VBox {
   int _lowerIndex;
@@ -230,104 +218,21 @@ class VBox {
     fitBox(colors, histogram);
   }
 
-  void fitBox(final List<int> colors, final List<int> histogram) {
-    int minRed, minGreen, minBlue;
-    minRed = minGreen = minBlue = INTEGER_MAX_VALUE;
-    int maxRed, maxGreen, maxBlue;
-    maxRed = maxGreen = maxBlue = INTEGER_MIN_VALUE;
-
-    int count = 0;
-
-    for ( int i = _lowerIndex; i <= _upperIndex; i++ ) {
-      final int color = colors[i];
-      count += histogram[color];
-
-      final int r = ColorCutQuantizer.quantizedRed(color);
-      final int g = ColorCutQuantizer.quantizedGreen(color);
-      final int b = ColorCutQuantizer.quantizedBlue(color);
-
-      maxRed = Math.max(maxRed, r);
-      maxGreen = Math.max(maxGreen, g);
-      maxBlue = Math.max(maxBlue, b);
-
-      minRed = Math.min(minRed, r);
-      minGreen = Math.min(minGreen, g);
-      minBlue = Math.min(minBlue, b);
-    }
-
-    _maxRed = maxRed;
-    _maxGreen = maxGreen;
-    _maxBlue = maxBlue;
-    _minRed = minRed;
-    _minGreen = minGreen;
-    _minBlue = minBlue;
-    _population = count;
-  }
-
   bool get canSplit => this.colorCount > 1;
 
   int get colorCount => 1 + _upperIndex - _lowerIndex;
-  
+
   int get volume => (_maxRed - _minRed + 1) * (_maxGreen - _minGreen + 1) * (_maxBlue - _minBlue +1 );
+  
+  int blueComparator(int a, int b) {
+    Function swizzle = (int val) {
+      return ColorCutQuantizer.quantizedBlue(val) << (ColorCutQuantizer.__QUANTIZE_WORD_WIDTH + ColorCutQuantizer.__QUANTIZE_WORD_WIDTH)
+              | ColorCutQuantizer.quantizedGreen(val) << ColorCutQuantizer.__QUANTIZE_WORD_WIDTH
+              | ColorCutQuantizer.quantizedRed(val);
+    };
 
-  Swatch getAverageColor(final List<int> colors, final List<int> histogram) {
-    int redSum = 0;
-    int greenSum = 0;
-    int blueSum = 0;
-    int totalPopulation = 0;
-
-    for (int i = _lowerIndex; i <= _upperIndex; i++ ){
-      final int color = colors[i];
-      final colorPopulation = histogram[color];
-
-      totalPopulation += colorPopulation;
-      redSum += colorPopulation * ColorCutQuantizer.quantizedRed(color);
-      greenSum += colorPopulation * ColorCutQuantizer.quantizedGreen(color);
-      blueSum += colorPopulation * ColorCutQuantizer.quantizedBlue(color);
-    }
-
-    final int redMean = (redSum ~/ totalPopulation);
-    final int greenMean = (greenSum ~/ totalPopulation);
-    final int blueMean = (blueSum ~/ totalPopulation);
-    int rgb888 = ColorCutQuantizer._approximateToRgb888(redMean, greenMean, blueMean);
-    return new Swatch(new Color(rgb888), totalPopulation);
+    return swizzle(a).compareTo(swizzle(b));
   }
-
-
-  /*
-   * @return the dimension which this box is largest in
-   */
-  int getLongestColorDimension() {
-    final int redLength = _maxRed - _minRed;
-    final int greenLength = _maxGreen - _minGreen;
-    final int blueLength = _maxBlue - _minBlue;
-    if (redLength >= greenLength && redLength >= blueLength) {
-        return ColorCutQuantizer.COMPONENT_RED;
-    } else if (greenLength >= redLength && greenLength >= blueLength) {
-        return ColorCutQuantizer.COMPONENT_GREEN;
-    } else {
-        return ColorCutQuantizer.COMPONENT_BLUE;
-    }
-  }
-
-  VBox splitBox(final List<int> colors, final List<int> histogram) {
-    if ( !this.canSplit ) {
-      throw new ArgumentError("Can not split a box with only 1 color.");
-    }
-
-    // find the split point along the longest dimension
-    final int splitPoint = findSplitPoint(colors, histogram);
-
-    // create one of the two resulting boxes...
-    VBox newBox = new VBox(splitPoint+1, _upperIndex, colors, histogram);
-
-    // now alter this VBox to become the other of the two split boxes.
-    _upperIndex = splitPoint;
-    fitBox(colors, histogram);
-
-    return newBox;
-  }
-
 
   int findSplitPoint(final List<int> colors, final List<int> histogram) {
     final int longestDimension = getLongestColorDimension();
@@ -362,8 +267,79 @@ class VBox {
     return _lowerIndex;
   }
 
-  int redComparator(int a, int b) {
-    return a.compareTo(b);
+
+  /*
+   * @return the dimension which this box is largest in
+   */
+  void fitBox(final List<int> colors, final List<int> histogram) {
+    int minRed, minGreen, minBlue;
+    minRed = minGreen = minBlue = INTEGER_MAX_VALUE;
+    int maxRed, maxGreen, maxBlue;
+    maxRed = maxGreen = maxBlue = INTEGER_MIN_VALUE;
+
+    int count = 0;
+
+    for ( int i = _lowerIndex; i <= _upperIndex; i++ ) {
+      final int color = colors[i];
+      count += histogram[color];
+
+      final int r = ColorCutQuantizer.quantizedRed(color);
+      final int g = ColorCutQuantizer.quantizedGreen(color);
+      final int b = ColorCutQuantizer.quantizedBlue(color);
+
+      maxRed = Math.max(maxRed, r);
+      maxGreen = Math.max(maxGreen, g);
+      maxBlue = Math.max(maxBlue, b);
+
+      minRed = Math.min(minRed, r);
+      minGreen = Math.min(minGreen, g);
+      minBlue = Math.min(minBlue, b);
+    }
+
+    _maxRed = maxRed;
+    _maxGreen = maxGreen;
+    _maxBlue = maxBlue;
+    _minRed = minRed;
+    _minGreen = minGreen;
+    _minBlue = minBlue;
+    _population = count;
+  }
+
+  Swatch getAverageColor(final List<int> colors, final List<int> histogram) {
+    int redSum = 0;
+    int greenSum = 0;
+    int blueSum = 0;
+    int totalPopulation = 0;
+
+    for (int i = _lowerIndex; i <= _upperIndex; i++ ){
+      final int color = colors[i];
+      final colorPopulation = histogram[color];
+
+      totalPopulation += colorPopulation;
+      redSum += colorPopulation * ColorCutQuantizer.quantizedRed(color);
+      greenSum += colorPopulation * ColorCutQuantizer.quantizedGreen(color);
+      blueSum += colorPopulation * ColorCutQuantizer.quantizedBlue(color);
+    }
+
+    final int redMean = (redSum ~/ totalPopulation);
+    final int greenMean = (greenSum ~/ totalPopulation);
+    final int blueMean = (blueSum ~/ totalPopulation);
+    int rgb888 = ColorCutQuantizer._approximateToRgb888(redMean, greenMean, blueMean);
+    return new Swatch(new Color(rgb888), totalPopulation);
+  }
+
+
+  int getLongestColorDimension() {
+    final int redLength = _maxRed - _minRed;
+    final int greenLength = _maxGreen - _minGreen;
+    final int blueLength = _maxBlue - _minBlue;
+    if (redLength >= greenLength && redLength >= blueLength) {
+        return ColorCutQuantizer.COMPONENT_RED;
+    } else if (greenLength >= redLength && greenLength >= blueLength) {
+        return ColorCutQuantizer.COMPONENT_GREEN;
+    } else {
+        return ColorCutQuantizer.COMPONENT_BLUE;
+    }
   }
 
   int greenComparator(int a, int b) {
@@ -378,14 +354,26 @@ class VBox {
     return aa.compareTo(bb);
   }
 
-  int blueComparator(int a, int b) {
-    Function swizzle = (int val) {
-      return ColorCutQuantizer.quantizedBlue(val) << (ColorCutQuantizer.__QUANTIZE_WORD_WIDTH + ColorCutQuantizer.__QUANTIZE_WORD_WIDTH)
-              | ColorCutQuantizer.quantizedGreen(val) << ColorCutQuantizer.__QUANTIZE_WORD_WIDTH
-              | ColorCutQuantizer.quantizedRed(val);
-    };
+  int redComparator(int a, int b) {
+    return a.compareTo(b);
+  }
 
-    return swizzle(a).compareTo(swizzle(b));
+  VBox splitBox(final List<int> colors, final List<int> histogram) {
+    if ( !this.canSplit ) {
+      throw new ArgumentError("Can not split a box with only 1 color.");
+    }
+
+    // find the split point along the longest dimension
+    final int splitPoint = findSplitPoint(colors, histogram);
+
+    // create one of the two resulting boxes...
+    VBox newBox = new VBox(splitPoint+1, _upperIndex, colors, histogram);
+
+    // now alter this VBox to become the other of the two split boxes.
+    _upperIndex = splitPoint;
+    fitBox(colors, histogram);
+
+    return newBox;
   }
 
 }

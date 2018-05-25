@@ -102,12 +102,13 @@ class ColorUtils {
 
   static void colorToHSL(int color, List<double> hsl) {
     Color c = Color(color);
-    return ColorUtils.rgbToHSL(c.red, c.green, c.blue, hsl);
+    ColorUtils.rgbToHSL(c.red, c.green, c.blue, hsl);
   }
   
   static int colorWithRGB(int r, int g, int b) {
     return new Color.fromARGB(0xFF, r, g, b).value;
   }
+  
   /*
   * Convert RGB components to HSL (hue-saturation-lightness).
   * <ul>

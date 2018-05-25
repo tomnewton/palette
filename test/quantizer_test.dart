@@ -8,7 +8,7 @@ import "package:palette/src/bitmap.dart";
 
 void main() {
   test("Test palette generation", () async {
-    var bytes = new Io.File('test/data/crimetown.jpeg')
+    var bytes = new Io.File('test/data/nba.jpeg')
       .readAsBytesSync();
     var codec = await instantiateImageCodec(bytes); 
     var frameInfo = await codec.getNextFrame();
@@ -28,6 +28,9 @@ void main() {
     var palette = await Palette.from(bmp).generate();
 
     var paletteBmp = await palette.render(200, 500);
+
+    var p = palette.getLightVibrantColor(0x000000);
+    
     //var cpy = await Bitmap.getCopyAllPixels(bmp);
     //var paletteBmp = Bitmap.copyResize(bmp, 200, 500);
 
