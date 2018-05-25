@@ -3,15 +3,14 @@ import "dart:ui";
 import "dart:async";
 
 class Bitmap {
-
   Image _sourceImg;
 
   int _width;
   int _height;
 
-  Bitmap(this._sourceImg) : 
-    _width = _sourceImg.width,
-    _height = _sourceImg.height;
+  Bitmap(this._sourceImg)
+      : _width = _sourceImg.width,
+        _height = _sourceImg.height;
 
   Image get source => _sourceImg;
 
@@ -22,21 +21,19 @@ class Bitmap {
   Future<ByteData> getPNGData() async {
     return await _sourceImg.toByteData(format: ImageByteFormat.png);
   }
-  
+
   static Future<List<int>> getCopyAllPixels(Bitmap source) async {
-    ByteData data = await source._sourceImg.toByteData(format: ImageByteFormat.rawRgba);
-    var argbByteData = new List<int>(data.lengthInBytes~/4);
+    ByteData data =
+        await source._sourceImg.toByteData(format: ImageByteFormat.rawRgba);
+    var argbByteData = new List<int>(data.lengthInBytes ~/ 4);
     // The f***ing Image class returns pixels in RGBA format... while everything else
-    // in dart:ui expects 32-bit integers in ARGB format... 
-    for( var i = 0; i < data.lengthInBytes; i+=4 ){
+    // in dart:ui expects 32-bit integers in ARGB format...
+    for (var i = 0; i < data.lengthInBytes; i += 4) {
       var color = data.getUint32(i);
       var argb = Bitmap.rgbaToARGB(color);
-      argbByteData[i~/4] = argb;
-      //argbByteData.setUint32(i, argb);
-      //var confirm = argbByteData.getUint32(i);
-      //var c = data.getUint32(i);
+      argbByteData[i ~/ 4] = argb;
     }
-    return argbByteData; //argbByteData.buffer.asUint32List();
+    return argbByteData;
   }
 
   static Bitmap createScaledBitmap(Bitmap bitmap, int width, int height) {
@@ -48,7 +45,7 @@ class Bitmap {
     final int height = bitmap.height;
     final double sx = dstWidth / width;
     final double sy = dstHeight / height;
-    
+
     var recorder = new PictureRecorder();
 
     var canvas = new Canvas(recorder);

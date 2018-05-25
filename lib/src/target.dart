@@ -20,7 +20,6 @@ class Target {
   static const int INDEX_WEIGHT_LUMA = 1;
   static const int INDEX_WEIGHT_POP = 2;
 
-
   /*
    * A target which has the characteristics of a vibrant color which is light in luminance.
   */
@@ -51,48 +50,48 @@ class Target {
   final List<double> mWeights = new List<double>(3);
   bool mIsExclusive = false; // default to true
 
-  Target(){
+  Target() {
     _setTargetDefaultValues(mSaturationTargets);
     _setTargetDefaultValues(mLightnessTargets);
     _setDefaultWeights();
   }
 
-  factory Target.lightVibrant(){
+  factory Target.lightVibrant() {
     Target target = new Target();
     _setDefaultLightLightnessValues(target);
     _setDefaultVibrantSaturationValues(target);
     return target;
   }
 
-  factory Target.vibrant(){
+  factory Target.vibrant() {
     Target target = new Target();
     _setDefaultNormalLightnessValues(target);
     _setDefaultVibrantSaturationValues(target);
     return target;
   }
 
-  factory Target.darkVibrant(){
-      Target target = new Target();
-      _setDefaultDarkLightnessValues(target);
-      _setDefaultVibrantSaturationValues(target);
-      return target;
+  factory Target.darkVibrant() {
+    Target target = new Target();
+    _setDefaultDarkLightnessValues(target);
+    _setDefaultVibrantSaturationValues(target);
+    return target;
   }
 
-  factory Target.lightMuted(){
+  factory Target.lightMuted() {
     Target target = new Target();
     _setDefaultLightLightnessValues(target);
     _setDefaultMutedSaturationValues(target);
     return target;
   }
 
-  factory Target.muted(){
+  factory Target.muted() {
     Target target = new Target();
     _setDefaultNormalLightnessValues(target);
     _setDefaultMutedSaturationValues(target);
     return target;
   }
 
-  factory Target.darkMuted(){
+  factory Target.darkMuted() {
     Target target = new Target();
     _setDefaultDarkLightnessValues(target);
     _setDefaultMutedSaturationValues(target);
@@ -104,43 +103,49 @@ class Target {
     */
   ////@doubleRange(from = 0, to = 1)
   double getMinimumSaturation() {
-      return mSaturationTargets[INDEX_MIN];
+    return mSaturationTargets[INDEX_MIN];
   }
+
   /*
     * The target saturation value for this target.
     */
   //@doubleRange(from = 0, to = 1)
   double getTargetSaturation() {
-      return mSaturationTargets[INDEX_TARGET];
+    return mSaturationTargets[INDEX_TARGET];
   }
+
   /*
     * The maximum saturation value for this target.
     */
   //@doubleRange(from = 0, to = 1)
   double getMaximumSaturation() {
-      return mSaturationTargets[INDEX_MAX];
+    return mSaturationTargets[INDEX_MAX];
   }
+
   /*
     * The minimum lightness value for this target.
     */
   //@doubleRange(from = 0, to = 1)
   double getMinimumLightness() {
-      return mLightnessTargets[INDEX_MIN];
+    return mLightnessTargets[INDEX_MIN];
   }
+
   /*
     * The target lightness value for this target.
     */
   //@doubleRange(from = 0, to = 1)
   double getTargetLightness() {
-      return mLightnessTargets[INDEX_TARGET];
+    return mLightnessTargets[INDEX_TARGET];
   }
+
   /*
     * The maximum lightness value for this target.
     */
   //@doubleRange(from = 0, to = 1)
   double getMaximumLightness() {
-      return mLightnessTargets[INDEX_MAX];
+    return mLightnessTargets[INDEX_MAX];
   }
+
   /*
     * Returns the weight of importance that this target places on a color's saturation within
     * the image.
@@ -151,8 +156,9 @@ class Target {
     * @see #getTargetSaturation()
     */
   double getSaturationWeight() {
-      return mWeights[INDEX_WEIGHT_SAT];
+    return mWeights[INDEX_WEIGHT_SAT];
   }
+
   /*
     * Returns the weight of importance that this target places on a color's lightness within
     * the image.
@@ -163,8 +169,9 @@ class Target {
     * @see #getTargetLightness()
     */
   double getLightnessWeight() {
-      return mWeights[INDEX_WEIGHT_LUMA];
+    return mWeights[INDEX_WEIGHT_LUMA];
   }
+
   /*
     * Returns the weight of importance that this target places on a color's population within
     * the image.
@@ -173,62 +180,70 @@ class Target {
     * color's population being close to the most populous has on selection.</p>
     */
   double getPopulationWeight() {
-      return mWeights[INDEX_WEIGHT_POP];
+    return mWeights[INDEX_WEIGHT_POP];
   }
+
   /*
     * Returns whether any color selected for this target is exclusive for this target only.
     *
     * <p>If false, then the color can be selected for other targets.</p>
     */
   bool isExclusive() {
-      return mIsExclusive;
+    return mIsExclusive;
   }
+
   static void _setTargetDefaultValues(final List<double> values) {
-      values[INDEX_MIN] = 0.0;
-      values[INDEX_TARGET] = 0.5;
-      values[INDEX_MAX] = 1.0;
+    values[INDEX_MIN] = 0.0;
+    values[INDEX_TARGET] = 0.5;
+    values[INDEX_MAX] = 1.0;
   }
+
   void _setDefaultWeights() {
-      mWeights[INDEX_WEIGHT_SAT] = WEIGHT_SATURATION;
-      mWeights[INDEX_WEIGHT_LUMA] = WEIGHT_LUMA;
-      mWeights[INDEX_WEIGHT_POP] = WEIGHT_POPULATION;
+    mWeights[INDEX_WEIGHT_SAT] = WEIGHT_SATURATION;
+    mWeights[INDEX_WEIGHT_LUMA] = WEIGHT_LUMA;
+    mWeights[INDEX_WEIGHT_POP] = WEIGHT_POPULATION;
   }
+
   void normalizeWeights() {
-      double sum = 0.0;
+    double sum = 0.0;
+    for (int i = 0, z = mWeights.length; i < z; i++) {
+      double weight = mWeights[i];
+      if (weight > 0) {
+        sum += weight;
+      }
+    }
+    if (sum != 0) {
       for (int i = 0, z = mWeights.length; i < z; i++) {
-          double weight = mWeights[i];
-          if (weight > 0) {
-              sum += weight;
-          }
+        if (mWeights[i] > 0) {
+          mWeights[i] /= sum;
+        }
       }
-      if (sum != 0) {
-          for (int i = 0, z = mWeights.length; i < z; i++) {
-              if (mWeights[i] > 0) {
-                  mWeights[i] /= sum;
-              }
-          }
-      }
+    }
   }
 
   static void _setDefaultDarkLightnessValues(Target target) {
-      target.mLightnessTargets[INDEX_TARGET] = TARGET_DARK_LUMA;
-      target.mLightnessTargets[INDEX_MAX] = MAX_DARK_LUMA;
+    target.mLightnessTargets[INDEX_TARGET] = TARGET_DARK_LUMA;
+    target.mLightnessTargets[INDEX_MAX] = MAX_DARK_LUMA;
   }
+
   static void _setDefaultNormalLightnessValues(Target target) {
-      target.mLightnessTargets[INDEX_MIN] = MIN_NORMAL_LUMA;
-      target.mLightnessTargets[INDEX_TARGET] = TARGET_NORMAL_LUMA;
-      target.mLightnessTargets[INDEX_MAX] = MAX_NORMAL_LUMA;
+    target.mLightnessTargets[INDEX_MIN] = MIN_NORMAL_LUMA;
+    target.mLightnessTargets[INDEX_TARGET] = TARGET_NORMAL_LUMA;
+    target.mLightnessTargets[INDEX_MAX] = MAX_NORMAL_LUMA;
   }
+
   static void _setDefaultLightLightnessValues(Target target) {
-      target.mLightnessTargets[INDEX_MIN] = MIN_LIGHT_LUMA;
-      target.mLightnessTargets[INDEX_TARGET] = TARGET_LIGHT_LUMA;
+    target.mLightnessTargets[INDEX_MIN] = MIN_LIGHT_LUMA;
+    target.mLightnessTargets[INDEX_TARGET] = TARGET_LIGHT_LUMA;
   }
+
   static void _setDefaultVibrantSaturationValues(Target target) {
-      target.mSaturationTargets[INDEX_MIN] = MIN_VIBRANT_SATURATION;
-      target.mSaturationTargets[INDEX_TARGET] = TARGET_VIBRANT_SATURATION;
+    target.mSaturationTargets[INDEX_MIN] = MIN_VIBRANT_SATURATION;
+    target.mSaturationTargets[INDEX_TARGET] = TARGET_VIBRANT_SATURATION;
   }
+
   static void _setDefaultMutedSaturationValues(Target target) {
-      target.mSaturationTargets[INDEX_TARGET] = TARGET_MUTED_SATURATION;
-      target.mSaturationTargets[INDEX_MAX] = MAX_MUTED_SATURATION;
+    target.mSaturationTargets[INDEX_TARGET] = TARGET_MUTED_SATURATION;
+    target.mSaturationTargets[INDEX_MAX] = MAX_MUTED_SATURATION;
   }
 }

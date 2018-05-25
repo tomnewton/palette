@@ -10,9 +10,8 @@ import 'constants.dart';
 import 'target.dart';
 
 class Builder {
-
   List<Swatch> _swatches;
-  final Bitmap _bitmap; 
+  final Bitmap _bitmap;
 
   final List<Target> _targets = new List<Target>();
 
@@ -24,10 +23,11 @@ class Builder {
   final List<Filter> _filters = new List<Filter>();
 
   Builder(this._bitmap) {
-    if( _bitmap == null  ) {  //|| _bitmap.isRecycled
+    if (_bitmap == null) {
+      //|| _bitmap.isRecycled
       throw new ArgumentError("Bitmap is not valid.");
     }
-  
+
     _filters.add(new Filter()); // add default filter;
     _swatches = null;
 
@@ -43,25 +43,22 @@ class Builder {
   }
 
   Future<Palette> generate() async {
-    
     List<Swatch> swatches;
 
-    if (_bitmap == null){
-      throw new ArgumentError("Called generate on a Builder with a null bitmap.");
+    if (_bitmap == null) {
+      throw new ArgumentError(
+          "Called generate on a Builder with a null bitmap.");
     }
 
     final Bitmap bitmap = _scaleBitmapDown(_bitmap);
 
-    var pixelsFromBitmap = await Bitmap.getCopyAllPixels(bitmap); //await getPixelsFromBitmap(bitmap);
-    
-    ColorCutQuantizer quantizer = new ColorCutQuantizer(
-      pixelsFromBitmap,
-      _maxColors,
-      _filters.isEmpty ? null : _filters.toList()
-    );
+    var pixelsFromBitmap = await Bitmap
+        .getCopyAllPixels(bitmap); //await getPixelsFromBitmap(bitmap);
+
+    ColorCutQuantizer quantizer = new ColorCutQuantizer(pixelsFromBitmap,
+        _maxColors, _filters.isEmpty ? null : _filters.toList());
 
     swatches = quantizer.quantizedColors;
-
 
     final Palette p = new Palette(swatches, _targets);
 
@@ -79,29 +76,26 @@ class Builder {
    * Scale the bitmap down as needed.
    */
   Bitmap _scaleBitmapDown(final Bitmap bitmap) {
-      double scaleRatio = -1.0;
-      if (_resizeArea > 0) {
-          final int bitmapArea = bitmap.width * bitmap.height;
-          if (bitmapArea > _resizeArea) {
-              scaleRatio = Math.sqrt(_resizeArea /bitmapArea);
-          }
-      } else if (_resizeMaxDimension > 0) {
-          final int maxDimension = Math.max(bitmap.width, bitmap.height);
-          if (maxDimension > _resizeMaxDimension) {
-              scaleRatio = _resizeMaxDimension / maxDimension;
-          }
+    double scaleRatio = -1.0;
+    if (_resizeArea > 0) {
+      final int bitmapArea = bitmap.width * bitmap.height;
+      if (bitmapArea > _resizeArea) {
+        scaleRatio = Math.sqrt(_resizeArea / bitmapArea);
       }
-      if (scaleRatio <= 0) {
-          // Scaling has been disabled or not needed so just return the Bitmap
-          return bitmap;
+    } else if (_resizeMaxDimension > 0) {
+      final int maxDimension = Math.max(bitmap.width, bitmap.height);
+      if (maxDimension > _resizeMaxDimension) {
+        scaleRatio = _resizeMaxDimension / maxDimension;
       }
-      return Bitmap.createScaledBitmap(bitmap,
-              (bitmap.width * scaleRatio).ceil(),
-              (bitmap.height * scaleRatio).ceil());
+    }
+    if (scaleRatio <= 0) {
+      // Scaling has been disabled or not needed so just return the Bitmap
+      return bitmap;
+    }
+    return Bitmap.createScaledBitmap(bitmap, (bitmap.width * scaleRatio).ceil(),
+        (bitmap.height * scaleRatio).ceil());
   }
-
 }
-
 
 class Filter implements IFilter {
   static const double _BLACK_MAX_LIGHTNESS = 0.05;
@@ -127,16 +121,11 @@ class Filter implements IFilter {
   }
 }
 
-
 abstract class IFilter {
   bool isAllowed(int rgb, List<double> hsl);
 }
 
-
-
-
 class Palette {
-
   static const int DEFAULT_RESIZE_BITMAP_AREA = 112 * 112;
   static const int DEFAULT_CALCULATE_NUMBER_COLORS = 16;
   static const double MIN_CONTRAST_TITLE_TEXT = 3.0;
@@ -149,14 +138,14 @@ class Palette {
   final Map<int, bool> _usedColors = new Map<int, bool>();
   final Swatch _dominantSwatch;
 
-  Palette(this._swatches, this._targets) : 
-    _dominantSwatch = findDominantSwatch(_swatches);
+  Palette(this._swatches, this._targets)
+      : _dominantSwatch = findDominantSwatch(_swatches);
 
   void generate() {
     // Need to make sure that scored targets are generated first. This is
     // so that inherited targets have something to inherit from.
     int count = _targets.length;
-    for ( int i = 0; i < count; i++ ) {
+    for (int i = 0; i < count; i++) {
       final Target target = _targets[i];
       target.normalizeWeights();
       Swatch s = _generateScoredTarget(target);
@@ -165,72 +154,79 @@ class Palette {
     _usedColors.clear();
   }
 
-
   int getColorForTarget(final Target target, final int defaultColor) {
-      Swatch swatch = _selectedSwatches[target];
-      return swatch != null ? swatch.rgb : defaultColor;
+    Swatch swatch = _selectedSwatches[target];
+    return swatch != null ? swatch.rgb : defaultColor;
   }
 
   /*
    * Returns all of the swatches which make up the palette.
    */
   int getDarkMutedColor(final int defaultColor) {
-      return getColorForTarget(Target.DARK_MUTED, defaultColor);
+    return getColorForTarget(Target.DARK_MUTED, defaultColor);
   }
+
   /*
    * Returns the targets used to generate this palette.
    */
   Swatch getDarkMutedSwatch() {
-      return _selectedSwatches[Target.DARK_MUTED];
+    return _selectedSwatches[Target.DARK_MUTED];
   }
+
   /*
    * Returns the most vibrant swatch in the palette. Might be null.
    *
    * @see Target#VIBRANT
    */
   int getDarkVibrantColor(final int defaultColor) {
-      return getColorForTarget(Target.DARK_VIBRANT, defaultColor);
+    return getColorForTarget(Target.DARK_VIBRANT, defaultColor);
   }
+
   /*
    * Returns a light and vibrant swatch from the palette. Might be null.
    *
    * @see Target#LIGHT_VIBRANT
    */
   Swatch getDarkVibrantSwatch() {
-      return _selectedSwatches[Target.DARK_VIBRANT];
+    return _selectedSwatches[Target.DARK_VIBRANT];
   }
+
   /*
    * Returns a dark and vibrant swatch from the palette. Might be null.
    *
    * @see Target#DARK_VIBRANT
    */
   Swatch getDominantSwatch() {
-      return _dominantSwatch;
+    return _dominantSwatch;
   }
+
   /*
    * Returns a muted swatch from the palette. Might be null.
    *
    * @see Target#MUTED
    */
   int getLightMutedColor(final int defaultColor) {
-      return getColorForTarget(Target.LIGHT_MUTED, defaultColor);
+    return getColorForTarget(Target.LIGHT_MUTED, defaultColor);
   }
+
   /*
    * Returns a muted and light swatch from the palette. Might be null.
    *
    * @see Target#LIGHT_MUTED
    */
   Swatch getLightMutedSwatch() {
-      return _selectedSwatches[Target.LIGHT_MUTED];
+    return _selectedSwatches[Target.LIGHT_MUTED];
   }
+
   /*
    * Returns a muted and dark swatch from the palette. Might be null.
    *
    * @see Target#DARK_MUTED
    */
   int getLightVibrantColor(final int defaultColor) {
-      return getColorForTarget(Target.LIGHT_VIBRANT, defaultColor);
+    return getColorForTarget(Target.LIGHT_VIBRANT, defaultColor);
   }
+
   /*
    * Returns the most vibrant color in the palette as an RGB packed int.
    *
@@ -238,8 +234,9 @@ class Palette {
    * @see #getVibrantSwatch()
    */
   Swatch getLightVibrantSwatch() {
-      return _selectedSwatches[Target.LIGHT_VIBRANT];
+    return _selectedSwatches[Target.LIGHT_VIBRANT];
   }
+
   /*
    * Returns a light and vibrant color from the palette as an RGB packed int.
    *
@@ -247,8 +244,9 @@ class Palette {
    * @see #getLightVibrantSwatch()
    */
   int getMutedColor(final int defaultColor) {
-      return getColorForTarget(Target.MUTED, defaultColor);
+    return getColorForTarget(Target.MUTED, defaultColor);
   }
+
   /*
    * Returns a dark and vibrant color from the palette as an RGB packed int.
    *
@@ -256,8 +254,9 @@ class Palette {
    * @see #getDarkVibrantSwatch()
    */
   Swatch getMutedSwatch() {
-      return _selectedSwatches[Target.MUTED];
+    return _selectedSwatches[Target.MUTED];
   }
+
   /*
    * Returns a muted color from the palette as an RGB packed int.
    *
@@ -265,9 +264,10 @@ class Palette {
    * @see #getMutedSwatch()
    */
   List<Swatch> getSwatches() {
-      //return Collections.unmodifiableList(mSwatches);
-      return new List.unmodifiable(_swatches);
+    //return Collections.unmodifiableList(mSwatches);
+    return new List.unmodifiable(_swatches);
   }
+
   /*
    * Returns a muted and light color from the palette as an RGB packed int.
    *
@@ -275,9 +275,10 @@ class Palette {
    * @see #getLightMutedSwatch()
    */
   List<Target> getTargets() {
-      //return Collections.unmodifiableList(mTargets);
-      return new List.unmodifiable(_targets);
+    //return Collections.unmodifiableList(mTargets);
+    return new List.unmodifiable(_targets);
   }
+
   /*
    * Returns a muted and dark color from the palette as an RGB packed int.
    *
@@ -285,7 +286,7 @@ class Palette {
    * @see #getDarkMutedSwatch()
    */
   int getVibrantColor(final int defaultColor) {
-      return getColorForTarget(Target.VIBRANT, defaultColor);
+    return getColorForTarget(Target.VIBRANT, defaultColor);
   }
 
   /*
@@ -294,8 +295,8 @@ class Palette {
    * @param defaultColor value to return if the swatch isn't available
    */
   Swatch getVibrantSwatch() {
-      //return getSwatchForTarget(Target.VIBRANT);
-      return _selectedSwatches[Target.VIBRANT];
+    //return getSwatchForTarget(Target.VIBRANT);
+    return _selectedSwatches[Target.VIBRANT];
   }
 
   /*
@@ -306,7 +307,7 @@ class Palette {
    */
   Future<Bitmap> render(int columnWidth, int height) async {
     List<Color> colors = new List<Color>();
-    for(var swatch in _swatches) {
+    for (var swatch in _swatches) {
       colors.add(new Color(swatch.rgb));
     }
 
@@ -314,13 +315,14 @@ class Palette {
     var canvas = new Canvas(recorder);
 
     var rowWidth = columnWidth * colors.length;
-    for ( var h = 0; h < height; h++ ){
-      for(var i = 0; i < colors.length; i++ ){
+    for (var h = 0; h < height; h++) {
+      for (var i = 0; i < colors.length; i++) {
         var color = colors[i];
-        for ( var j = 0; j < columnWidth; j++ ){
+        for (var j = 0; j < columnWidth; j++) {
           var y = h.toDouble();
-          var x = (i*columnWidth) + j.toDouble();
-          canvas.drawRawPoints(PointMode.points, new Float32List.fromList([x, y]), new Paint()..color = color);
+          var x = (i * columnWidth) + j.toDouble();
+          canvas.drawRawPoints(PointMode.points,
+              new Float32List.fromList([x, y]), new Paint()..color = color);
         }
       }
     }
@@ -329,31 +331,31 @@ class Palette {
     return new Bitmap(img);
   }
 
-
   double _generateScore(Swatch swatch, Target target) {
     final List<double> hsl = swatch.hsl;
     double saturationScore = 0.0;
     double luminanceScore = 0.0;
     double populationScore = 0.0;
-    final int maxPopulation = _dominantSwatch != null ? _dominantSwatch.population : 1;
+    final int maxPopulation =
+        _dominantSwatch != null ? _dominantSwatch.population : 1;
     if (target.getSaturationWeight() > 0) {
-        saturationScore = target.getSaturationWeight()
-                * (1.0 - (hsl[1] - target.getTargetSaturation()).abs());
+      saturationScore = target.getSaturationWeight() *
+          (1.0 - (hsl[1] - target.getTargetSaturation()).abs());
     }
     if (target.getLightnessWeight() > 0) {
-        luminanceScore = target.getLightnessWeight()
-                * (1.0 - (hsl[2] - target.getTargetLightness()).abs());
+      luminanceScore = target.getLightnessWeight() *
+          (1.0 - (hsl[2] - target.getTargetLightness()).abs());
     }
     if (target.getPopulationWeight() > 0) {
-        populationScore = target.getPopulationWeight()
-                * (swatch.population / maxPopulation);
+      populationScore =
+          target.getPopulationWeight() * (swatch.population / maxPopulation);
     }
     return saturationScore + luminanceScore + populationScore;
   }
 
   Swatch _generateScoredTarget(final Target target) {
     final Swatch maxScoreSwatch = _getMaxScoredSwatchForTarget(target);
-    if (maxScoreSwatch != null && target.isExclusive() ) {
+    if (maxScoreSwatch != null && target.isExclusive()) {
       _usedColors[maxScoreSwatch.rgb] = true;
     }
     return maxScoreSwatch;
@@ -363,14 +365,14 @@ class Palette {
     double maxScore = 0.0;
     Swatch maxScoreSwatch;
     for (int i = 0, count = _swatches.length; i < count; i++) {
-        final Swatch swatch = _swatches[i];
-        if (_shouldBeScoredForTarget(swatch, target)) {
-            final double score = _generateScore(swatch, target);
-            if (maxScoreSwatch == null || score > maxScore) {
-                maxScoreSwatch = swatch;
-                maxScore = score;
-            }
+      final Swatch swatch = _swatches[i];
+      if (_shouldBeScoredForTarget(swatch, target)) {
+        final double score = _generateScore(swatch, target);
+        if (maxScoreSwatch == null || score > maxScore) {
+          maxScoreSwatch = swatch;
+          maxScore = score;
         }
+      }
     }
     return maxScoreSwatch;
   }
@@ -379,24 +381,25 @@ class Palette {
     // Check whether the HSL values are within the correct ranges, and this color hasn't
     // been used yet.
     final List<double> hsl = swatch.hsl;
-    return hsl[1] >= target.getMinimumSaturation() && hsl[1] <= target.getMaximumSaturation()
-            && hsl[2] >= target.getMinimumLightness() && hsl[2] <= target.getMaximumLightness()
-            && !_usedColors.containsKey(swatch.rgb);
+    return hsl[1] >= target.getMinimumSaturation() &&
+        hsl[1] <= target.getMaximumSaturation() &&
+        hsl[2] >= target.getMinimumLightness() &&
+        hsl[2] <= target.getMaximumLightness() &&
+        !_usedColors.containsKey(swatch.rgb);
   }
 
   static Swatch findDominantSwatch(List<Swatch> swatches) {
     int maxPop = INTEGER_MIN_VALUE;
     Swatch maxSwatch;
     for (int i = 0, count = swatches.length; i < count; i++) {
-        Swatch swatch = swatches[i];
-        if (swatch.population > maxPop) {
-            maxSwatch = swatch;
-            maxPop = swatch.population;
-        }
+      Swatch swatch = swatches[i];
+      if (swatch.population > maxPop) {
+        maxSwatch = swatch;
+        maxPop = swatch.population;
+      }
     }
     return maxSwatch;
   }
-
 
   static Builder from(Bitmap bmp) {
     return new Builder(bmp);
@@ -418,7 +421,6 @@ class Swatch {
   int _titleTextColor;
   int _bodyTextColor;
 
-
   List<double> _hsl;
 
   Swatch(this._rgb, this._population);
@@ -432,10 +434,10 @@ class Swatch {
   int get hashCode => 31 * _rgb.value + _population;
 
   List<double> get hsl {
-    if ( _hsl != null ){
+    if (_hsl != null) {
       return _hsl;
     }
-   if ( _rgb != null ) {
+    if (_rgb != null) {
       _hsl = new List<double>.filled(3, 0.0);
       ColorUtils.colorToHSL(_rgb.value, _hsl);
       return _hsl;
@@ -447,67 +449,68 @@ class Swatch {
 
   int get rgb => _rgb.value;
 
-
   int get titleTextColor {
     _ensureTextColorsGenerated();
-    return _titleTextColor; 
+    return _titleTextColor;
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is Swatch &&
-              _population == other.population &&
-              _rgb.value == other.rgb;
+      other is Swatch &&
+          _population == other.population &&
+          _rgb.value == other.rgb;
 
   String toString() {
-    return " [RGB: 0x${this.rgb.toRadixString(16)} ]" + 
-    " [HSL: ${this.hsl.toString()}" +
-    " [Population: ${this.population} ]" +
-    " [Title Text Color: 0x${this.titleTextColor.toRadixString(16)} ]" +
-    " [Body Text Color: 0x${this.bodyTextColor.toRadixString(16)} ]";
+    return " [RGB: 0x${this.rgb.toRadixString(16)} ]" +
+        " [HSL: ${this.hsl.toString()}" +
+        " [Population: ${this.population} ]" +
+        " [Title Text Color: 0x${this.titleTextColor.toRadixString(16)} ]" +
+        " [Body Text Color: 0x${this.bodyTextColor.toRadixString(16)} ]";
   }
 
   void _ensureTextColorsGenerated() {
-    if (_generatedTextColors == true ) {
+    if (_generatedTextColors == true) {
       return;
     }
-    
+
     // First check white, as most colors will be dark
     final int lightBodyAlpha = ColorUtils.calculateMinimumAlpha(
-            ColorUtils.WHITE, _rgb.value, Palette.MIN_CONTRAST_BODY_TEXT);
+        ColorUtils.WHITE, _rgb.value, Palette.MIN_CONTRAST_BODY_TEXT);
     final int lightTitleAlpha = ColorUtils.calculateMinimumAlpha(
-            ColorUtils.WHITE, _rgb.value, Palette.MIN_CONTRAST_TITLE_TEXT);
+        ColorUtils.WHITE, _rgb.value, Palette.MIN_CONTRAST_TITLE_TEXT);
     if (lightBodyAlpha != -1 && lightTitleAlpha != -1) {
-        // If we found valid light values, use them and return
-        _bodyTextColor = ColorUtils.setAlphaComponent(ColorUtils.WHITE, lightBodyAlpha);
-        _titleTextColor = ColorUtils.setAlphaComponent(ColorUtils.WHITE, lightTitleAlpha);
-        _generatedTextColors = true;
-        return;
+      // If we found valid light values, use them and return
+      _bodyTextColor =
+          ColorUtils.setAlphaComponent(ColorUtils.WHITE, lightBodyAlpha);
+      _titleTextColor =
+          ColorUtils.setAlphaComponent(ColorUtils.WHITE, lightTitleAlpha);
+      _generatedTextColors = true;
+      return;
     }
 
     final int darkBodyAlpha = ColorUtils.calculateMinimumAlpha(
-            ColorUtils.BLACK, _rgb.value, Palette.MIN_CONTRAST_BODY_TEXT);
+        ColorUtils.BLACK, _rgb.value, Palette.MIN_CONTRAST_BODY_TEXT);
     final int darkTitleAlpha = ColorUtils.calculateMinimumAlpha(
-            ColorUtils.BLACK, _rgb.value, Palette.MIN_CONTRAST_TITLE_TEXT);
+        ColorUtils.BLACK, _rgb.value, Palette.MIN_CONTRAST_TITLE_TEXT);
     if (darkBodyAlpha != -1 && darkTitleAlpha != -1) {
-        // If we found valid dark values, use them and return
-        _bodyTextColor = ColorUtils.setAlphaComponent(ColorUtils.BLACK, darkBodyAlpha);
-        _titleTextColor = ColorUtils.setAlphaComponent(ColorUtils.BLACK, darkTitleAlpha);
-        _generatedTextColors = true;
-        return;
+      // If we found valid dark values, use them and return
+      _bodyTextColor =
+          ColorUtils.setAlphaComponent(ColorUtils.BLACK, darkBodyAlpha);
+      _titleTextColor =
+          ColorUtils.setAlphaComponent(ColorUtils.BLACK, darkTitleAlpha);
+      _generatedTextColors = true;
+      return;
     }
-    
+
     // If we reach here then we can not find title and body values which use the same
     // lightness, we need to use mismatched values
     _bodyTextColor = lightBodyAlpha != -1
-            ? ColorUtils.setAlphaComponent(ColorUtils.WHITE, lightBodyAlpha)
-            : ColorUtils.setAlphaComponent(ColorUtils.BLACK, darkBodyAlpha);
+        ? ColorUtils.setAlphaComponent(ColorUtils.WHITE, lightBodyAlpha)
+        : ColorUtils.setAlphaComponent(ColorUtils.BLACK, darkBodyAlpha);
     _titleTextColor = lightTitleAlpha != -1
-            ? ColorUtils.setAlphaComponent(ColorUtils.WHITE, lightTitleAlpha)
-            : ColorUtils.setAlphaComponent(ColorUtils.BLACK, darkTitleAlpha);
+        ? ColorUtils.setAlphaComponent(ColorUtils.WHITE, lightTitleAlpha)
+        : ColorUtils.setAlphaComponent(ColorUtils.BLACK, darkTitleAlpha);
     _generatedTextColors = true;
-
   }
-
 }
