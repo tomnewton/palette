@@ -1,19 +1,13 @@
 import 'package:test/test.dart';
 import 'dart:io' as Io;
-import 'dart:ui';
 import 'package:palette/src/bitmap.dart';
 
-main(){
+main() {
   test("Test scale down bmp", () async {
-    var bytes = new Io.File('data/mat.png')
-      .readAsBytesSync();
-    // get an Image
-    var codec = await instantiateImageCodec(bytes); 
-    var frameInfo = await codec.getNextFrame();
-    var image = frameInfo.image;
+    var bytes = new Io.File('data/mat.png').readAsBytesSync();
 
     // Create a bitmap and copy resize.
-    var bmp = new Bitmap(image);
+    var bmp = await Bitmap.from(bytes);
     var cpy = Bitmap.copyResize(bmp, 387, 233);
     expect(cpy.width, equals(387));
     expect(cpy.height, equals(233));

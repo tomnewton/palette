@@ -122,7 +122,7 @@ class ColorCutQuantizer {
   }
 
   bool _shouldIgnoreSwatch(Swatch s) {
-    return _shouldIgnoreColorRGBHSL(s.rgb, s.hsl);
+    return _shouldIgnoreColorRGBHSL(s.rgb.value, s.hsl);
   }
 
   void _splitBoxes(PriorityQueue queue, int maxSize) {

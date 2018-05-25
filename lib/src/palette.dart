@@ -307,7 +307,7 @@ class Palette {
   Future<Bitmap> render(int columnWidth, int height) async {
     List<Color> colors = new List<Color>();
     for (var swatch in _swatches) {
-      colors.add(new Color(swatch.rgb));
+      colors.add(swatch.rgb);
     }
 
     var recorder = new PictureRecorder();
@@ -355,7 +355,7 @@ class Palette {
   Swatch _generateScoredTarget(final Target target) {
     final Swatch maxScoreSwatch = _getMaxScoredSwatchForTarget(target);
     if (maxScoreSwatch != null && target.isExclusive()) {
-      _usedColors[maxScoreSwatch.rgb] = true;
+      _usedColors[maxScoreSwatch.rgb.value] = true;
     }
     return maxScoreSwatch;
   }
@@ -404,12 +404,31 @@ class Palette {
     return new Builder(bmp);
   }
 
-  /*static List<double> _copyHslValues(Swatch color) {
-    final List<double> newHsl = new List<double>(3);
-    //System.arraycopy(color.hsl, 0, newHsl, 0, 3);
-    List.copyRange(newHsl, 0, color.hsl);
-    return newHsl;
-  }*/
+  /*
+  * The data must be in a format supported by 
+  * instantiateImageCodec in dart:ui
+  */
+  static Future<Builder> fromRawData(Uint8List data) async {
+    var bmp = await Bitmap.from(data);
+    return Palette.from(bmp);
+  }
+
+  /*
+  * The data must be in a format supported by 
+  * instantiateImageCodec in dart:ui
+  */
+  static Future<Palette> generateFromRawData(Uint8List data) async {
+    var builder = await Palette.fromRawData(data);
+    return await builder.generate();
+  }
+
+  String toString() {
+    String out = "Palette: \n\tSwatches:";
+    for (Swatch s in _swatches) {
+      out += "\n\t\tSwatch: [RGB: 0x${s.rgb.value.toRadixString(16)} ]";
+    }
+    return out;
+  }
 }
 
 class Swatch {
@@ -446,7 +465,7 @@ class Swatch {
 
   int get population => _population;
 
-  int get rgb => _rgb.value;
+  Color get rgb => _rgb;
 
   int get titleTextColor {
     _ensureTextColorsGenerated();
@@ -465,15 +484,30 @@ class Swatch {
     return new Color(ColorUtils.hslToColor(tempHSL));
   }
 
+  Map<int, Color> toMaterialSwatch() {
+    return new Map<int, Color>.from({
+      50: this[5],
+      100: this[10],
+      200: this[20],
+      300: this[30],
+      400: this[40],
+      500: this[50],
+      600: this[60],
+      700: this[70],
+      800: this[80],
+      900: this[90],
+    });
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is Swatch &&
           _population == other.population &&
-          _rgb.value == other.rgb;
+          _rgb.value == other.rgb.value;
 
   String toString() {
-    return " [RGB: 0x${this.rgb.toRadixString(16)} ]" +
+    return " [RGB: 0x${this.rgb.value.toRadixString(16)} ]" +
         " [HSL: ${this.hsl.toString()}" +
         " [Population: ${this.population} ]" +
         " [Title Text Color: 0x${this.titleTextColor.toRadixString(16)} ]" +

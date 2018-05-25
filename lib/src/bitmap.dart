@@ -12,6 +12,14 @@ class Bitmap {
       : _width = _sourceImg.width,
         _height = _sourceImg.height;
 
+  static Future<Bitmap> from(Uint8List data) async {
+    var codec = await instantiateImageCodec(data.buffer.asUint8List());
+    var frameInfo = await codec.getNextFrame();
+    var image = frameInfo.image;
+    var bmp = new Bitmap(image);
+    return bmp;
+  }
+
   Image get source => _sourceImg;
 
   int get height => _height;
