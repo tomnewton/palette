@@ -138,14 +138,22 @@ class ColorUtils {
       h = s = 0.0;
     } else {
       if (max == rf) {
-        h = ((gf - bf) / deltaMaxMin) % 6.0;
+        h = ((gf - bf) / deltaMaxMin); //% 6.0; // not sure what the %6 is for.
       } else if (max == gf) {
         h = ((bf - rf) / deltaMaxMin) + 2;
       } else {
         h = ((rf - gf) / deltaMaxMin) + 4;
       }
-      s = deltaMaxMin / (1.0 - (2.0 * l - 1.0).abs());
     }
+
+    // changed calculation for "l" from android implementation based on
+    // http://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
+    if ( l < 0.5 ){
+      s = deltaMaxMin / (max + min);
+    } else {
+      s = deltaMaxMin / (2.0-max-min);
+    }
+
     hsl[0] = (h * 60.0) % 360.0;
     hsl[1] = s;
     hsl[2] = l;
@@ -179,51 +187,55 @@ class ColorUtils {
         .round();
   }
 
+  /*
+   * Convert from HSL values to a Color int in ARGB format.
+   */
   static int hslToColor(List<double> hsl) {
     final double h = hsl[0];
     final double s = hsl[1];
     final double l = hsl[2];
-    final double c = (1.0 - (2 * l - 1.0).abs()) * s;
-    final double m = l - 0.5 * c;
-    final double x = c * (1.0 - ((h / 60.0 % 2.0) - 1.0).abs());
-    final int hueSegment = h ~/ 60;
-    int r = 0, g = 0, b = 0;
-    switch (hueSegment) {
-      case 0:
-        r = (255 * (c + m)).round();
-        g = (255 * (x + m)).round();
-        b = (255 * m).round();
-        break;
-      case 1:
-        r = (255 * (x + m)).round();
-        g = (255 * (c + m)).round();
-        b = (255 * m).round();
-        break;
-      case 2:
-        r = (255 * m).round();
-        g = (255 * (c + m)).round();
-        b = (255 * (x + m)).round();
-        break;
-      case 3:
-        r = (255 * m).round();
-        g = (255 * (x + m)).round();
-        b = (255 * (c + m)).round();
-        break;
-      case 4:
-        r = (255 * (x + m)).round();
-        g = (255 * m).round();
-        b = (255 * (c + m)).round();
-        break;
-      case 5:
-      case 6:
-        r = (255 * (c + m)).round();
-        g = (255 * m).round();
-        b = (255 * (x + m)).round();
-        break;
+
+    if ( h == 0.0 && s == 0.0 ) { // monochromatic
+      var val = (l * 255).round();
+      return new Color.fromARGB(255, val, val, val).value;
     }
-    r = Math.max(0, Math.min(255, r));
-    g = Math.max(0, Math.min(255, g));
-    b = Math.max(0, Math.min(255, b));
-    return new Color.fromARGB(255, r, g, b).value;
+
+    double temp_1;
+    double temp_2;
+
+    if ( l < 0.5 ) {
+      temp_1 = l * ( 1.0 + s );
+    } else {
+      temp_1 = l + s - ( l * s );
+    }
+
+    temp_2 = 2 * l - temp_1;
+
+    double hue = h / 360;
+
+    double tempR = (hue + 0.333) % 1;
+    double tempG = hue % 1;
+    double tempB = (hue - 0.333) % 1;
+
+    double eval(double tempVal) {
+      // Tests
+      double r;
+      if ( 6 * tempVal < 1 ) {
+        r = temp_2 + ( temp_1 - temp_2 ) * 6 * tempVal;
+      } else if (2 * tempVal < 1 ) {
+        r = temp_1;
+      } else if ( 3 * tempVal < 2 ) {
+        r = temp_2 + ( temp_1 - temp_2 ) * (0.666 - tempVal) * 6;
+      } else {
+        r = temp_2;
+      }
+      return r;
+    }
+    
+    int red   = (eval(tempR) * 255).round();
+    int green = (eval(tempG) * 255).round();
+    int blue  = (eval(tempB) * 255).round();
+
+    return new Color.fromARGB(255, red, green, blue).value;
   }
 }

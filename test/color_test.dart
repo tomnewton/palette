@@ -8,9 +8,24 @@ void main() {
   test("RGB - HSL", () {
     var rgb = 0xFF884422;
     var hsl = new List<double>(3);
+
+    // Compute the HSL
     ColorUtils.rgbToHSL(ColorUtils.red(rgb), ColorUtils.green(rgb), ColorUtils.blue(rgb), hsl);
-    var want = ColorUtils.hslToColor(hsl);
-    expect(want, equals(rgb));
+
+    // Check they're what we'd expect. Values from https://www.w3schools.com/colors/colors_picker.asp
+    expect(hsl, equals(new List<double>.from([20.0, 0.6000000000000001, 0.3333333333333333])));
+
+    var have = ColorUtils.hslToColor(hsl);
+
+    // Hopefully we've got the original rgb colour back.
+    expect(have, equals(rgb));
+
+    // Try another for good luck.
+    rgb = 0xfff07c0f;
+    hsl = new List<double>(3);
+    ColorUtils.rgbToHSL(ColorUtils.red(rgb), ColorUtils.green(rgb), ColorUtils.blue(rgb), hsl);
+    have = ColorUtils.hslToColor(hsl);
+    expect(have, equals(rgb));
   });
 
   test('RGBA to ARGB', ()  {
