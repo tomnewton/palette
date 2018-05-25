@@ -454,13 +454,13 @@ class Swatch {
   }
 
   Color operator [](int i) {
-    if ( i < 0 || 100 < i ){
+    if (i < 0 || 100 < i) {
       throw new RangeError("Must be between 0...100");
     }
     var tempHSL = new List<double>.filled(3, 0.0);
     List.copyRange(tempHSL, 0, this.hsl);
-    
-    tempHSL[2] = i/100;
+
+    tempHSL[2] = i / 100;
 
     return new Color(ColorUtils.hslToColor(tempHSL));
   }

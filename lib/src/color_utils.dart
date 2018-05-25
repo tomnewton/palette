@@ -147,7 +147,8 @@ class ColorUtils {
     final double s = hsl[1];
     final double l = hsl[2];
 
-    if ( h == 0.0 && s == 0.0 ) { // monochromatic
+    if (h == 0.0 && s == 0.0) {
+      // monochromatic
       var val = (l * 255).round();
       return new Color.fromARGB(255, val, val, val).value;
     }
@@ -155,10 +156,10 @@ class ColorUtils {
     double temp_1;
     double temp_2;
 
-    if ( l < 0.5 ) {
-      temp_1 = l * ( 1.0 + s );
+    if (l < 0.5) {
+      temp_1 = l * (1.0 + s);
     } else {
-      temp_1 = l + s - ( l * s );
+      temp_1 = l + s - (l * s);
     }
 
     temp_2 = 2 * l - temp_1;
@@ -172,21 +173,21 @@ class ColorUtils {
     double eval(double tempVal) {
       // Tests
       double r;
-      if ( 6 * tempVal < 1 ) {
-        r = temp_2 + ( temp_1 - temp_2 ) * 6 * tempVal;
-      } else if (2 * tempVal < 1 ) {
+      if (6 * tempVal < 1) {
+        r = temp_2 + (temp_1 - temp_2) * 6 * tempVal;
+      } else if (2 * tempVal < 1) {
         r = temp_1;
-      } else if ( 3 * tempVal < 2 ) {
-        r = temp_2 + ( temp_1 - temp_2 ) * (0.666 - tempVal) * 6;
+      } else if (3 * tempVal < 2) {
+        r = temp_2 + (temp_1 - temp_2) * (0.666 - tempVal) * 6;
       } else {
         r = temp_2;
       }
       return r;
     }
-    
-    int red   = (eval(tempR) * 255).round();
+
+    int red = (eval(tempR) * 255).round();
     int green = (eval(tempG) * 255).round();
-    int blue  = (eval(tempB) * 255).round();
+    int blue = (eval(tempB) * 255).round();
 
     return new Color.fromARGB(255, red, green, blue).value;
   }
@@ -228,10 +229,10 @@ class ColorUtils {
 
     // changed calculation for "l" from android implementation based on
     // http://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
-    if ( l < 0.5 ){
+    if (l < 0.5) {
       s = deltaMaxMin / (max + min);
     } else {
-      s = deltaMaxMin / (2.0-max-min);
+      s = deltaMaxMin / (2.0 - max - min);
     }
 
     hsl[0] = (h * 60.0) % 360.0;
