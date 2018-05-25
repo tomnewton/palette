@@ -2,8 +2,8 @@ import 'dart:math' as Math;
 import 'dart:ui';
 
 class ColorUtils {
-  static const int WHITE = 0xFFFFFF;
-  static const int BLACK = 0x000000;
+  static const int WHITE = 0xFFFFFFFF;
+  static const int BLACK = 0xFF000000;
 
   static const int MIN_ALPHA_SEARCH_MAX_ITERATIONS = 10;
   static const int MIN_ALPHA_SEARCH_PRECISION = 10;
@@ -111,54 +111,6 @@ class ColorUtils {
     return new Color.fromARGB(0xFF, r, g, b).value;
   }
 
-  /*
-  * Convert RGB components to HSL (hue-saturation-lightness).
-  * <ul>
-  * <li>hsl[0] is Hue [0 .. 360)</li>
-  * <li>hsl[1] is Saturation [0...1]</li>
-  * <li>hsl[2] is Lightness [0...1]</li>
-  * </ul>
-  *
-  * @param r   red component value [0..255]
-  * @param g   green component value [0..255]
-  * @param b   blue component value [0..255]
-  * @param hsl 3 element array which holds the resulting HSL components.
-  */
-  static void rgbToHSL(int r, int g, int b, List<double> hsl) {
-    final double rf = r / 255.0;
-    final double gf = g / 255.0;
-    final double bf = b / 255.0;
-    final double max = Math.max<double>(rf, Math.max<double>(gf, bf));
-    final double min = Math.min<double>(rf, Math.min<double>(gf, bf));
-    final double deltaMaxMin = max - min;
-    double h, s;
-    double l = (max + min) / 2;
-    if (max == min) {
-      // Monochromatic
-      h = s = 0.0;
-    } else {
-      if (max == rf) {
-        h = ((gf - bf) / deltaMaxMin); //% 6.0; // not sure what the %6 is for.
-      } else if (max == gf) {
-        h = ((bf - rf) / deltaMaxMin) + 2;
-      } else {
-        h = ((rf - gf) / deltaMaxMin) + 4;
-      }
-    }
-
-    // changed calculation for "l" from android implementation based on
-    // http://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
-    if ( l < 0.5 ){
-      s = deltaMaxMin / (max + min);
-    } else {
-      s = deltaMaxMin / (2.0-max-min);
-    }
-
-    hsl[0] = (h * 60.0) % 360.0;
-    hsl[1] = s;
-    hsl[2] = l;
-  }
-
   static int alpha(int color) {
     return Color(color).alpha;
   }
@@ -237,5 +189,53 @@ class ColorUtils {
     int blue  = (eval(tempB) * 255).round();
 
     return new Color.fromARGB(255, red, green, blue).value;
+  }
+
+  /*
+  * Convert RGB components to HSL (hue-saturation-lightness).
+  * <ul>
+  * <li>hsl[0] is Hue [0 .. 360)</li>
+  * <li>hsl[1] is Saturation [0...1]</li>
+  * <li>hsl[2] is Lightness [0...1]</li>
+  * </ul>
+  *
+  * @param r   red component value [0..255]
+  * @param g   green component value [0..255]
+  * @param b   blue component value [0..255]
+  * @param hsl 3 element array which holds the resulting HSL components.
+  */
+  static void rgbToHSL(int r, int g, int b, List<double> hsl) {
+    final double rf = r / 255.0;
+    final double gf = g / 255.0;
+    final double bf = b / 255.0;
+    final double max = Math.max<double>(rf, Math.max<double>(gf, bf));
+    final double min = Math.min<double>(rf, Math.min<double>(gf, bf));
+    final double deltaMaxMin = max - min;
+    double h, s;
+    double l = (max + min) / 2;
+    if (max == min) {
+      // Monochromatic
+      h = s = 0.0;
+    } else {
+      if (max == rf) {
+        h = ((gf - bf) / deltaMaxMin); //% 6.0; // not sure what the %6 is for.
+      } else if (max == gf) {
+        h = ((bf - rf) / deltaMaxMin) + 2;
+      } else {
+        h = ((rf - gf) / deltaMaxMin) + 4;
+      }
+    }
+
+    // changed calculation for "l" from android implementation based on
+    // http://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
+    if ( l < 0.5 ){
+      s = deltaMaxMin / (max + min);
+    } else {
+      s = deltaMaxMin / (2.0-max-min);
+    }
+
+    hsl[0] = (h * 60.0) % 360.0;
+    hsl[1] = s;
+    hsl[2] = l;
   }
 }
