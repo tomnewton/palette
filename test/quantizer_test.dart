@@ -1,11 +1,6 @@
 import "package:test/test.dart";
-import "package:palette/src/palette.dart";
-import "dart:io" as Io;
 import "dart:ui";
-import "dart:typed_data";
-import "package:palette/src/bitmap.dart";
 import "package:palette/src/color_cut_quantizer.dart";
-//import "package:flutter/painting.dart";
 
 void main() {
   test("Test quanization of a color and approximation back...", () {
