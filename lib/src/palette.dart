@@ -454,7 +454,7 @@ class Swatch {
   }
 
   Color operator [](int i) {
-    if ( i > 100 || i < 0){
+    if ( i < 0 || 100 < i ){
       throw new RangeError("Must be between 0...100");
     }
     var tempHSL = new List<double>.filled(3, 0.0);
