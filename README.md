@@ -2,8 +2,6 @@
 
 A flutter library for generating a palette of colors from an image.
 
-Lifted shifted and enhanced from android.graphics library.
-
- ```¯\_(ツ)_/¯```
-
 See lib/example/lib/main.dart for a running demo.
+
+![alt text](https://raw.githubusercontent.com/tomnewton/palette/master/lib/example/assets/screen.png)
