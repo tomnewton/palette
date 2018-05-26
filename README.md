@@ -6,4 +6,4 @@ Lifted shifted and enhanced from android.graphics library.
 
  ```¯\_(ツ)_/¯```
 
-See lib/example for a running demo. 
+See lib/example/lib/main.dart for a running demo.
