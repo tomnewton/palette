@@ -22,8 +22,7 @@ class ColorCutQuantizer {
 
   final List<double> _temporaryHsl = new List<double>(3);
 
-  ColorCutQuantizer(
-      final List<int> pixels, final int maxColors, this._filters) {
+  ColorCutQuantizer(final List<int> pixels, final int maxColors, this._filters) {
     final List<int> hist = _histogram =
         new List<int>.filled((1 << (__QUANTIZE_WORD_WIDTH * 3)), 0);
     for (var i = 0; i < pixels.length; i++) {
