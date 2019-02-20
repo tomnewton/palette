@@ -11,7 +11,7 @@ import 'target.dart';
 
 class Builder {
   List<Swatch> _swatches;
-  final Bitmap _bitmap;
+  Bitmap _bitmap;
 
   final List<Target> _targets = new List<Target>();
 
@@ -52,7 +52,7 @@ class Builder {
     final Bitmap bitmap = _scaleBitmapDown(_bitmap);
 
     var pixelsFromBitmap = await Bitmap
-        .getCopyAllPixels(bitmap); //await getPixelsFromBitmap(bitmap);
+        .getCopyAllPixels(bitmap);
 
     ColorCutQuantizer quantizer = new ColorCutQuantizer(pixelsFromBitmap,
         _maxColors, _filters.isEmpty ? null : _filters.toList());
@@ -62,6 +62,9 @@ class Builder {
     final Palette p = new Palette(swatches, _targets);
 
     p.generate();
+
+    _bitmap.dispose();
+    _bitmap = null;
 
     return p;
   }
@@ -334,7 +337,6 @@ class Palette {
       }
     }
     var img = recorder.endRecording().toImage(rowWidth, height);
-
     return new Bitmap(img);
   }
 

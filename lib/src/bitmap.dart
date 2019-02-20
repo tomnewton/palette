@@ -34,7 +34,7 @@ class Bitmap {
     ByteData data =
         await source._sourceImg.toByteData(format: ImageByteFormat.rawRgba);
     var argbByteData = new List<int>(data.lengthInBytes ~/ 4);
-    // The f***ing Image class returns pixels in RGBA format... while everything else
+    // The Image class returns pixels in RGBA format... while everything else
     // in dart:ui expects 32-bit integers in ARGB format...
     for (var i = 0; i < data.lengthInBytes; i += 4) {
       var color = data.getUint32(i);
@@ -72,5 +72,9 @@ class Bitmap {
     var blue = input >> 8 & 0x0000FF;
     var alpha = input & 0x000000FF;
     return alpha << 24 | red << 16 | green << 8 | blue;
+  }
+
+  void dispose() {
+    this._sourceImg.dispose();
   }
 }
