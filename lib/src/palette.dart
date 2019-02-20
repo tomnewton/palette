@@ -49,7 +49,7 @@ class Builder {
           "Called generate on a Builder with a null bitmap.");
     }
 
-    final Bitmap bitmap = _scaleBitmapDown(_bitmap);
+    final Bitmap bitmap = await _scaleBitmapDown(_bitmap);
 
     var pixelsFromBitmap = await Bitmap
         .getCopyAllPixels(bitmap);
@@ -77,7 +77,7 @@ class Builder {
   /*
    * Scale the bitmap down as needed.
    */
-  Bitmap _scaleBitmapDown(final Bitmap bitmap) {
+  Future<Bitmap> _scaleBitmapDown(final Bitmap bitmap) async {
     double scaleRatio = -1.0;
     if (_resizeArea > 0) {
       final int bitmapArea = bitmap.width * bitmap.height;
@@ -336,7 +336,7 @@ class Palette {
         }
       }
     }
-    var img = recorder.endRecording().toImage(rowWidth, height);
+    var img = await recorder.endRecording().toImage(rowWidth, height);
     return new Bitmap(img);
   }
 

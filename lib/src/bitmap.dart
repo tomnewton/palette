@@ -44,11 +44,11 @@ class Bitmap {
     return argbByteData;
   }
 
-  static Bitmap createScaledBitmap(Bitmap bitmap, int width, int height) {
-    return copyResize(bitmap, width, height);
+  static Future<Bitmap> createScaledBitmap(Bitmap bitmap, int width, int height) async {
+    return await copyResize(bitmap, width, height);
   }
 
-  static Bitmap copyResize(Bitmap bitmap, int dstWidth, int dstHeight) {
+  static Future<Bitmap> copyResize(Bitmap bitmap, int dstWidth, int dstHeight) async {
     final int width = bitmap.width;
     final int height = bitmap.height;
     final double sx = dstWidth / width;
@@ -61,7 +61,7 @@ class Bitmap {
     canvas.drawImage(bitmap.source, new Offset(0.0, 0.0), new Paint());
 
     Picture pic = recorder.endRecording();
-    Image img = pic.toImage(dstWidth, dstHeight);
+    Image img = await pic.toImage(dstWidth, dstHeight);
     pic.dispose();
     return new Bitmap(img);
   }
